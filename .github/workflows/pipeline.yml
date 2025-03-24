@@ -1,0 +1,54 @@
+name: Terraform CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - feat/task-01
+    
+    pull_request:
+      branches:
+        - feat/task-01
+
+jobs:
+  check:
+    name: "Terraform Check"
+    runs-on: ubuntu-latest
+    steps:
+      # step 1: check code
+      - name: checkout repository
+        uses: action/checkout@v3
+
+      # step 2: configure credentials
+      - name: configure AWS credentials
+        uses: aws-action/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      # Step 3: setup terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with: 
+          terraform_version: latest
+          
+  deploy:
+    name: "Terraform deploy"
+    runs-on: ubuntu-latest
+    need: check
+      # Step 1: 
+      - name: Init Terraform
+        run: terraform init
+
+      # Step 2: 
+      - name: terraform plan
+        run: terraform plan
+
+      # Step 3:
+      - name: terraform apply
+        run: terraform apply -auto-approve
+
+
+
+
+
