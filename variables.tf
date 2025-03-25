@@ -4,10 +4,16 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "bucket_name" {
+variable "s3_bucket_name" {
   description = "The name of the S3 bucket for Terraform state"
   type        = string
   default     = "aws-devops-s3-my-bucket"
+}
+
+variable "dynamodb_table_name" {
+  description = "The name of the DynamoDB table for state locking"
+  type        = string
+  default     = "terraform-lock"
 }
 
 variable "github_repo" {
