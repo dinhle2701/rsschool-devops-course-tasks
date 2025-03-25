@@ -34,7 +34,8 @@ jobs:
 
       # Step 4: 
       - name: Init Terraform
-        run: terraform init
+        run: terraform init -backend-config="bucket=aws-devops-s3-my-bucket" -backend-config="key=terraform.tfstate" -backend-config="region=us-east-1"
+
 
       # Step 5: 
       - name: terraform plan

@@ -7,4 +7,8 @@ resource "aws_dynamodb_table" "terraform_lock" {
     name = "LockID"
     type = "S"
   }
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
