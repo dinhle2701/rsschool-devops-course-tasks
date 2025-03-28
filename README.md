@@ -1,130 +1,119 @@
-# DevOps Course
+# Task 2: Basic Infrastructure Configuration
 
-## The goal
+## Objective
 
-The course aims to offer in-depth knowledge of DevOps principles and essential AWS services necessary for efficient automation and infrastructure management. Participants will gain practical skills in setting up, deploying, and managing Kubernetes clusters on AWS, using tools like Kops and Terraform.
+In this task, you will write Terraform code to configure the basic networking infrastructure required for a Kubernetes (K8s) cluster.
 
-## Prerequisite
+## Steps
 
-- The application code should have unit tests and should be able to run (`npm test` or similar).
-- Students should have a SonarQube account and will be able to run with their code (`sonar-scanner -Dsonar.projectKey=Your_Project_Key -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io/`).
-- Dockerfile with application.
+1. **Write Terraform Code**
 
-## Module 1: Configuration and Resources
+   - Create Terraform code to configure the following:
+     - VPC
+     - 2 public subnets in different AZs
+     - 2 private subnets in different AZs
+     - Internet Gateway
+     - Routing configuration:
+       - Instances in all subnets can reach each other
+       - Instances in public subnets can reach addresses outside VPC and vice-versa
 
-### Part 1 (configuration)
+2. **Organize Code**
 
-- Developing the architecture of the infrastructure with private and public networks.
-- Install aws cli.
-- Installation and configuration of Terraform.
-- Configuring access to AWS via Terraform (API keys, IAM roles).
+   - Define variables in a separate variables file.
+   - Separate resources into different files for better organization.
 
-### Part 2 (resources)
+3. **Verify Configuration**
 
-#### Option 1 (paid version)
+   - Execute `terraform plan` to ensure the configuration is correct.
+   - Provide a resource map screenshot (VPC -> Your VPCs -> your_VPC_name -> Resource map).
 
-- Writing Terraform code for creating VPC with distinct public and private subnets, and route tables.
-- NAT gateway in the public network.
-- Creating security groups and rules that correspond to the network architecture and resource distribution across public and private networks.
-- Describing IAM roles and policies for Kubernetes.
-- Configuring EC2 instances for Kubernetes nodes.
-- Setting up EBS volumes and attaching them to instances.
-- Implementing a bastion host within the public subnet.
-- Create an S3 bucket in AWS to store the Kops state.
-- Setting up a DNS record for the Kubernetes cluster (if used).
+4. **Submit Code**
 
-#### Option 2 (free resources)
+   - Create a PR with the Terraform code in a new repository.
+   - (Optional) Set up a GitHub Actions (GHA) pipeline for the Terraform code.
 
-- Writing Terraform code for creating VPC with distinct public and private subnets, and route tables.
-- NAT instance in the public network.
-- Creating security groups and rules.
-- Describing IAM roles and policies for Kubernetes.
-- Configuring EC2 instances for Kubernetes nodes.
-- Setting up EBS volumes and attaching them to instances.
-- Implementing a bastion host within the public subnet.
-- Create an S3 bucket in AWS to store the Kops state.
+5. **Additional Tasks**
+   - Implement security groups.
+   - Create a bastion host for secure access to the private subnets.
+   - Organize NAT for private subnets, so instances in private subnet can connect with outside world:
+     - Simpler way: create a NAT Gateway
+     - Cheaper way: configure a NAT instance in public subnet
+   - Document the infrastructure setup and usage in a README file.
 
-## Module 2: Cluster Configuration and Creation
+## Evaluation Criteria (100 points for covering all criteria)
 
-### Part 1 (cluster configuration)
+1. **Terraform Code Implementation (50 points)**
 
-#### Option 1 (kops config)
+   - Terraform code is created to configure the following:
+     - VPC
+     - 2 public subnets in different AZs
+     - 2 private subnets in different AZs
+     - Internet Gateway
+     - Routing configuration:
+       - Instances in all subnets can reach each other
+       - Instances in public subnets can reach addresses outside VPC and vice-versa
 
-- Installing Kops on your workstation.
-- Creating an IAM user for Kops with the necessary permissions.
-- Configuring access to AWS using IAM credentials.
+2. **Code Organization (10 points)**
 
-#### Option 2 (k3s config)
+   - Variables are defined in a separate variables file.
+   - Resources are separated into different files for better organization.
 
-- Installing K3s on your local machine.
-- Creating an IAM user with the necessary permissions specifically for managing the K3s environment.
-- Configuring AWS IAM credentials on the workstation.
+3. **Verification (10 points)**
 
-### Part 2 (create cluster)
+   - Terraform plan is executed successfully.
+   - A resource map screenshot is provided (VPC -> Your VPCs -> your_VPC_name -> Resource map).
 
-#### Option 1 (kops installation)
+4. **Additional Tasks (30 points)**
+   - **Security Groups and Network ACLs (5 points)**
+     - Implement security groups and network ACLs for the VPC and subnets.
+   - **Bastion Host (5 points)**
+     - Create a bastion host for secure access to the private subnets.
+   - **NAT is implemented for private subnets (10 points)**
+     - Orginize NAT for private subnets with simpler or cheaper way
+     - Instances in private subnets should be able to reach addresses outside VPC
+   - **Documentation (5 points)**
+     - Document the infrastructure setup and usage in a README file.
+   - **Submission (5 points)**
+   - A GitHub Actions (GHA) pipeline is set up for the Terraform code.
 
-- Prepare cluster configuration with kops command.
-- Apply kops configuration.
-- Validate the cluster.
-- Create an account in Kubernetes for Jenkins.
+## References
 
-#### Option 2 (k3s installation)
+#### Simpler way
 
-- Prepare the K3s cluster configuration.
-- Applying the K3s configuration using Terraform and K3s setup commands.
-- Validating the cluster to ensure it's correctly configured and operational.
-- Check k3s service status.
-- Get nodes status.
-- Inspect cluster resources.
+Elastic IP:
 
-## Module 3: Jenkins Server Installation and Configuration
+- https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
-### Part 1 (Installation and configuration Jenkins server)
+Route table association:
 
-- Installation and configuration of Helm, a package manager for Kubernetes.
-- Configuring and applying the Helm chart to deploy Jenkins in the cluster.
-- Setting up traffic routing to Jenkins through Ingress or a LoadBalancer.
-- Accessing the Jenkins interface through a browser.
-- Installing necessary plugins in Jenkins. (sonarqube, docker).
-- Set up necessary plugins in Jenkins for Kubernetes like Kubernetes plugin. Configure the plugin with endpoints and credentials for Kubernetes.
+- https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/main_route_table_association
 
-### Part 2 (Create Pipeline)
+NAT vs Internet Gateway:
 
-- Create pipeline, add steps:
-  1. Build application.
-  2. Unit tests.
-  3. SonarQube check.
-  4. Build and push docker image to ECR.
-  5. Deploy docker image to Kubernetes cluster.
-- Create a Helm chart for your application. The chart should contain templates for all necessary Kubernetes resources like Deployments as well as Health checks, liveness, readiness probes.
-- Store your Helm chart in a source control system accessible from Jenkins.
-- In the deployment stage of your Jenkinsfile, add steps to deploy the application using Helm.
-- Check that the application works as expected.
-- After the deployment, you can add steps to verify that the application is running as expected. This could involve checking the status of the Kubernetes deployment, running integration tests, or hitting a health check endpoint.
+- https://stackoverflow.com/questions/74455063/what-exactly-are-nat-gateway-and-internet-gateway-on-aws
 
-## Module 4: Monitoring with Prometheus and Grafana
+Configuration EC2 with private subnets:
 
-### Part 1 (Installation and configuration Prometheus)
+- https://medium.com/@prabhupj/terraform-way-to-run-aws-ec2-instances-in-a-private-subnet-and-load-balancing-with-an-application-98da5a11d4f1
 
-- Using Helm to install Prometheus in Kubernetes.
-- Configuring Prometheus to collect metrics from the cluster.
-- Creating and configuring Service Monitor to track services in the cluster.
-- Configuring alert rules in Prometheus for monitoring critical events.
+#### Cheaper way
 
-### Part 2 (Installation and configuration Grafana)
+Making EC2 a NAT gateway:
 
-- Deploying Grafana in Kubernetes using Helm.
-- Setting up secure access to Grafana via Ingress or LoadBalancer.
-- Configuring Grafana to connect to Prometheus as a data source.
-- Importing or creating dashboards to visualize metrics from Prometheus.
+- https://medium.com/nerd-for-tech/how-to-turn-an-amazon-linux-2023-ec2-into-a-nat-instance-4568dad1778f
 
-### Part 3. (Testing monitoring)
+Configuration of NAT with multiple interfaces:
 
-- Conducting tests to verify the collection of metrics and their display in Grafana.
-- Simulating failures or high loads to test configured alerts.
+- It is needed to provide an interface by VPC and consume the interface by the Bastion host
+- https://people.computing.clemson.edu/~jmarty/courses/LinuxStuff/SetupNATWIthIpTables.pdf
+- https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface
 
-## Useful links
+iptables:
 
-- [Kubernetes with Kops](https://blog.kubecost.com/blog/kubernetes-kops/)
-- [K3s AWS Terraform Cluster](https://garutilorenzo.github.io/k3s-aws-terraform-cluster/)
+- https://linux.die.net/man/8/iptables
+
+Logs for troubleshooting user-data:
+
+- https://stackoverflow.com/questions/15904095/how-to-check-whether-my-user-data-passing-to-ec2-instance-is-working
+- /var/log/cloud-init.log
+- /var/log/cloud-init-output.log
