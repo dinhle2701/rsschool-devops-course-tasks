@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Bỏ qua thư mục Terraform và file trạng thái
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
